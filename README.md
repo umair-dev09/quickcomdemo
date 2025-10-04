@@ -26,7 +26,21 @@ A professional B2B dashboard built for brands monitoring their product inventory
 
 ---
 
-## 🚀 Quick Start
+## � Documentation Guides
+
+**👉 New to deployment? Start with these guides:**
+
+| Guide | Purpose | Time |
+|-------|---------|------|
+| [📘 Quick Deployment](./DEPLOYMENT_QUICKSTART.md) | Step-by-step deployment to production | 15 min |
+| [⏰ Cron Setup Guide](./CRON_SETUP.md) | Configure auto-scraping (5-min intervals) | 5 min |
+| [🔧 Environment Variables](./.env.example) | Required configuration | 2 min |
+
+**⚠️ Important:** Vercel's free plan only supports daily cron jobs. We use [cron-job.org](https://cron-job.org) (also free!) for 5-minute auto-scraping.
+
+---
+
+## �🚀 Quick Start
 
 ## 📋 Table of Contents
 
@@ -146,7 +160,7 @@ This project was built in response to a data engineer role assignment from a pri
 
 - ✅ Store ID system: `PLATFORM_PINCODE` (e.g., BLK_400001)- Total Products
 
-- ✅ **Auto-scraping every 5 minutes** via Vercel Cron (`/api/scraper/auto`)- Out of Stock Count
+- ✅ **Auto-scraping every 5 minutes** via external cron service (`/api/scraper/auto`)- Out of Stock Count
 
 - ✅ Structured JSON output- Low Stock Alerts
 
@@ -220,7 +234,7 @@ This project was built in response to a data engineer role assignment from a pri
 
 - ✅ **Professional WhatsApp popup dialog** (not console!)├── api/              # API routes
 
-- ✅ Vercel-ready with cron job configuration├── components/       # React components
+- ✅ Production-ready with external cron job setup├── components/       # React components
 
 - ✅ Clean, documented GitHub repository├── page.tsx         # Main dashboard
 
@@ -349,7 +363,7 @@ DOI = Current Stock ÷ Average Daily Sales
 
 ### Infrastructure
 - **Vercel** - Hosting and deployment
-- **Vercel Cron** - Scheduled jobs (5-minute scraper)
+- **cron-job.org** - Free external cron service (5-minute scraper)
 - **Neon Database** - Serverless PostgreSQL
 - **Git/GitHub** - Version control
 
@@ -466,7 +480,7 @@ quickcomdemo/
 ├── public/                       # Static assets
 ├── database-setup.sql            # SQL schema reference
 ├── drizzle.config.ts             # Drizzle ORM config
-├── vercel.json                   # Vercel cron configuration
+├── vercel.json                   # Vercel deployment config
 ├── package.json                  # Dependencies
 └── tsconfig.json                 # TypeScript config
 ```
@@ -518,9 +532,9 @@ DOI = Current Stock Count ÷ Average Daily Sales
 
 **Architecture:**
 ```
-Vercel Cron (every 5 min)
+cron-job.org (every 5 min)
     ↓
-/api/scraper/auto
+/api/scraper/auto (with auth token)
     ↓
 Mock Scraper (generates fresh data)
     ↓
@@ -694,19 +708,24 @@ Trigger the scraper to fetch fresh stock data.
 
 **POST** `/api/scraper/auto`
 
-Automatic scraper triggered by Vercel Cron every 5 minutes.
+Automatic scraper triggered by external cron service (cron-job.org) every 5 minutes.
 
-**Cron Configuration (vercel.json):**
+**Authentication Required:**
+- Header: `Authorization: Bearer YOUR_CRON_SECRET`
+- Returns `401 Unauthorized` if missing or invalid
+
+**Response:**
 ```json
 {
-  "crons": [
-    {
-      "path": "/api/scraper/auto",
-      "schedule": "*/5 * * * *"
-    }
-  ]
+  "success": true,
+  "message": "Scraper executed successfully",
+  "recordsProcessed": 72,
+  "duration": 10920,
+  "timestamp": "2025-10-04T12:30:00.000Z"
 }
 ```
+
+**Setup:** See [CRON_SETUP.md](./CRON_SETUP.md) for detailed configuration instructions.
 
 ---
 
@@ -848,15 +867,29 @@ git push -u origin master
 **3. Add Environment Variables**
 ```
 DATABASE_URL = your_neon_connection_string
+CRON_SECRET = your_random_secret_token_here
+```
+
+Generate `CRON_SECRET`:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 **4. Deploy**
 - Vercel auto-deploys on push
 - Get your live URL: `https://your-app.vercel.app`
+- **Important:** Redeploy after adding environment variables
 
-**5. Verify Cron Job**
-- Vercel automatically sets up the cron job
-- Check: Project Settings → Cron Jobs
+**5. Setup External Cron Job**
+- Go to [cron-job.org](https://cron-job.org) (free, no credit card)
+- Create account and new cron job
+- URL: `https://your-app.vercel.app/api/scraper/auto`
+- Method: `POST`
+- Schedule: `*/5 * * * *` (every 5 minutes)
+- Header: `Authorization: Bearer YOUR_CRON_SECRET`
+- **Full guide:** See [CRON_SETUP.md](./CRON_SETUP.md)
+
+**Why external cron?** Vercel Hobby (free) plan only supports daily cron jobs. For 5-minute intervals, we use cron-job.org (also free!).
 
 ---
 

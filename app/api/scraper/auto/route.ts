@@ -1,5 +1,8 @@
 // API Route for automatic scraper cron job
-// This runs automatically every 5 minutes to keep data fresh
+// This runs automatically every 5 minutes via external cron service (cron-job.org)
+// 
+// SECURITY: This endpoint uses a secret token to prevent unauthorized access
+// Set CRON_SECRET in your environment variables
 
 import { NextResponse } from 'next/server';
 import { runMockScraper } from '@/lib/scraper/mock-scraper';
@@ -15,7 +18,7 @@ let lastExecution: Date | null = null;
 let isRunning = false;
 
 /**
- * GET endpoint to check scraper status
+ * GET endpoint to check scraper status (no auth required for monitoring)
  */
 export async function GET() {
   return NextResponse.json({
@@ -29,10 +32,23 @@ export async function GET() {
 }
 
 /**
- * POST endpoint to manually trigger or check auto-scraper
- * In production, this would be triggered by a cron service like Vercel Cron
+ * POST endpoint triggered by external cron service
+ * Requires CRON_SECRET header for authentication
  */
-export async function POST() {
+export async function POST(request: Request) {
+  // Security: Verify cron secret token
+  const cronSecret = process.env.CRON_SECRET;
+  const authHeader = request.headers.get('authorization');
+  
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Unauthorized - Invalid or missing cron secret' 
+      },
+      { status: 401 }
+    );
+  }
   // Prevent concurrent executions
   if (isRunning) {
     return NextResponse.json(
