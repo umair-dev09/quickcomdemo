@@ -1,4 +1,11 @@
-# 🚀 B2B Stock Out Alert Dashboard# Stock Out Alert Dashboard
+# 🚀 B2B Stock Out Alert D---
+---
+
+**⚠️ Important:** Vercel's free plan only supports daily cron jobs. We use [cron-job.org](https://cron-job.org) (also free!) for 5-minute auto-scraping.
+
+---:** Vercel's free plan only supports daily cron jobs. We use [cron-job.org](https://cron-job.org) (also free!) for 5-minute auto-scraping.
+
+--- Out Alert Dashboard
 
 
 
@@ -106,13 +113,12 @@ This dashboard was built as a comprehensive solution for B2B stock monitoring ac
 
 For brands selling on quick commerce platforms, knowing when products go out of stock can mean the difference between capturing sales and losing customers to competitors. This dashboard provides:
 
-- **[SETUP.md](./SETUP.md)** - Quick setup guide with database options
-
-- **Proactive Alerts:** Get notified before products run out- **[DOCUMENTATION.md](./DOCUMENTATION.md)** - Complete technical documentation
-
+- **Proactive Alerts:** Get notified before products run out
 - **Multi-Platform View:** Compare stock across Blinkit, Zepto, Instamart
+- **Predictive Analytics:** DOI calculations help plan restocking
+- **Operational Efficiency:** Automated monitoring saves manual checking time
 
-- **Predictive Analytics:** DOI calculations help plan restocking## 🏗️ Tech Stack
+## 🏗️ Tech Stack
 
 - **Operational Efficiency:** Automated monitoring saves manual checking time
 
@@ -275,8 +281,6 @@ types/               # TypeScript definitions
 ## 🤝 Support
 
 ---
-
-See `DOCUMENTATION.md` for detailed guides and troubleshooting.
 
 ## ✨ Key Features
 
@@ -725,7 +729,7 @@ Automatic scraper triggered by external cron service (cron-job.org) every 5 minu
 }
 ```
 
-**Setup:** See [CRON_SETUP.md](./CRON_SETUP.md) for detailed configuration instructions.
+**Setup:** Configure on cron-job.org with your Vercel URL and CRON_SECRET token.
 
 ---
 
@@ -887,7 +891,6 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 - Method: `POST`
 - Schedule: `*/5 * * * *` (every 5 minutes)
 - Header: `Authorization: Bearer YOUR_CRON_SECRET`
-- **Full guide:** See [CRON_SETUP.md](./CRON_SETUP.md)
 
 **Why external cron?** Vercel Hobby (free) plan only supports daily cron jobs. For 5-minute intervals, we use cron-job.org (also free!).
 
